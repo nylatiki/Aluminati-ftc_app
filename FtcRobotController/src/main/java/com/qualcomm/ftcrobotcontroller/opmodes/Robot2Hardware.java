@@ -421,7 +421,7 @@ public class Robot2Hardware extends OpMode {
     public void start()
     {
         setDriveDirection(RobotDirection.INTAKE);
-        resetEncoders("boxSlide");
+        //resetEncoders("boxSlide");
     }
 
     @Override
