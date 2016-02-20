@@ -9,44 +9,66 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
  */
 public class MotorEncoderTest extends OpMode
 {
+    private final int ENCODER_THRESHOLD = 10;
+
     private DcMotorController.DeviceMode    devMode;
     private DcMotorController               motorControl;
     private DcMotor                         testMotor;
-    //private int                             targetMotorPos;
-    //private MotorState                      motorState;
-    private int                             loops;
-    private boolean                         haveNotRun;
+    private int                             targetPos;
+    private boolean                         setPosDone;
+    private int state;
 
     @Override
     public void init()
     {
-        motorControl    = hardwareMap.dcMotorController.get("motorController");
+        targetPos = 1440;
+        setPosDone = false;
+        state = 1;
+        motorControl    = hardwareMap.dcMotorController.get("motorControl");
         testMotor       = hardwareMap.dcMotor.get("testMotor");
 
-        testMotor.setChannelMode(DcMotorController.RunMode.RUN_TO_POSITION);
+        testMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
         //motorState = MotorState.STOPPED;
         //targetMotorPos = 200;
 
-        loops = 0;
-        haveNotRun = true;
+        //loops = 0;
+        //haveNotRun = true;
     }
 
     @Override
     public void start()
     {
-        motorControl.setMotorControllerDeviceMode(DcMotorController.DeviceMode.WRITE_ONLY);
-        testMotor.setPower(0.1);
-        testMotor.setTargetPosition(1440);
-        //motorControl.setMotorControllerDeviceMode(DcMotorController.DeviceMode.READ_ONLY);
+        motorControl.setMotorControllerDeviceMode(DcMotorController.DeviceMode.READ_WRITE);
+        testMotor.setPower(0.5);
+        testMotor.setMode(DcMotorController.RunMode.RESET_ENCODERS);
     }
 
     @Override
     public void loop()
     {
-        if (!testMotor.isBusy())
+        switch (state)
         {
-
+            case 1:
+                if (testMotor.getMode() == DcMotorController.RunMode.RESET_ENCODERS
+                        && testMotor.getCurrentPosition() == 0)
+                {
+                    testMotor.setMode(DcMotorController.RunMode.RUN_TO_POSITION);
+                    state++;
+                }
+                break;
+            case 2:
+                testMotor.setTargetPosition(targetPos);
+                state++;
+                break;
+            case 3:
+                if (testMotor.getCurrentPosition() < testMotor.getTargetPosition()+ENCODER_THRESHOLD
+                        && testMotor.getCurrentPosition() > testMotor.getTargetPosition()-ENCODER_THRESHOLD)
+                    state++;
+                break;
         }
+        telemetry.addData("Motor Mode: ", testMotor.getMode());
+        telemetry.addData("Motor State: ", state);
+
         /*
          *  OLD ALGORITHM
          */
