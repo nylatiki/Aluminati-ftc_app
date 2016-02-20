@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.ServoController;
 /**
  * Created by BenL on 12/28/15.
  */
-public class RobotHardware extends OpMode {
+public class Robot1Hardware extends OpMode {
 
     // Controllers
     private DcMotorController[] motorControlrs;
@@ -56,7 +56,7 @@ public class RobotHardware extends OpMode {
     protected final double R_BRUSH_BAR_MIDDLE = 0.325;
     protected final double R_BRUSH_BAR_DOWN = 0.15;
 
-    public RobotHardware(boolean driveEncoders)
+    public Robot1Hardware(boolean driveEncoders)
     {
         this.driveEncoders = driveEncoders;
     }

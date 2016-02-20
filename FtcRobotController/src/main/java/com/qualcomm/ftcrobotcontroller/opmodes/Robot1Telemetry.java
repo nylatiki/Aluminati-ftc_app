@@ -1,6 +1,5 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,13 +9,13 @@ import java.util.Iterator;
 /**
  * Created by BenL on 12/30/15.
  */
-public class RobotTelemetry extends RobotHardware
+public class Robot1Telemetry extends Robot1Hardware
 {
     private final int RESERVED_INDEX = 6;
     private HashSet<String> unmappedComponents;
     private LinkedHashMap<String, String> telemetryData;
 
-    public RobotTelemetry(boolean driveEncoders)
+    public Robot1Telemetry(boolean driveEncoders)
     {
         super(driveEncoders);
     }

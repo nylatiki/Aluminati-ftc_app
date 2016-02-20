@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 /**
  * Created by BenL on 1/8/16.
  */
-public class RobotAuto extends RobotTelemetry
+public class Robot1Auto extends Robot1Telemetry
 {
     private int state;
-    public RobotAuto()
+    public Robot1Auto()
     {
         super(true); // Use drive encoders
     }

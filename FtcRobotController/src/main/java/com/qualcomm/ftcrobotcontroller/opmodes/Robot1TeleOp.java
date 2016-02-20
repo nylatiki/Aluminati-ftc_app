@@ -3,7 +3,7 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 /**
  * Created by BenL on 1/6/16.
  */
-public class RobotTeleOp extends RobotTelemetry
+public class Robot1TeleOp extends Robot1Telemetry
 {
     private boolean manualRangle;
     private boolean manualPimp;
@@ -16,7 +16,7 @@ public class RobotTeleOp extends RobotTelemetry
 
     private final int PIMP_INTERVAL = 520;
 
-    public RobotTeleOp ()
+    public Robot1TeleOp()
     {
         super(false); // Do not use drive encoders
     }
