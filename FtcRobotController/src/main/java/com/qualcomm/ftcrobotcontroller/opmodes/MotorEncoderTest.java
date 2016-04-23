@@ -48,7 +48,7 @@ public class MotorEncoderTest extends OpMode
     {
         switch (state)
         {
-            case 1:
+            case 2:
                 if (testMotor.getMode() == DcMotorController.RunMode.RESET_ENCODERS
                         && testMotor.getCurrentPosition() == 0)
                 {
@@ -56,7 +56,7 @@ public class MotorEncoderTest extends OpMode
                     state++;
                 }
                 break;
-            case 2:
+            case 1:
                 testMotor.setTargetPosition(targetPos);
                 state++;
                 break;

@@ -8,14 +8,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * Created by BenL on 1/8/16.
  */
-public class Robot2Auto extends Robot2Telemetry
+public class Robot2Auto1 extends Robot2Telemetry
 {
     // 540 = 180 turn
     // 270 = one robot length
@@ -32,7 +30,7 @@ public class Robot2Auto extends Robot2Telemetry
 
     private boolean encoderReset;
     //private final TeamColor SIDE;
-    public Robot2Auto(TeamColor side)
+    public Robot2Auto1(TeamColor side)
     {
         super(true); // Use drive encoders
         SIDE = side;
@@ -73,9 +71,9 @@ public class Robot2Auto extends Robot2Telemetry
     {
         setDriveDirection(RobotDirection.WINCH);
         setServoVal("peoplePutter", 1);
-        setServoVal("claws", 0.4);
+        setServoVal("claws", 0.65);
         setServoVal("leftTrigger", 0.1);
-        setServoVal("rightTrigger", 0.85);
+        setServoVal("rightTrigger", 0.75);
         state = 0; // beginning state
 
     }
@@ -160,43 +158,69 @@ public class Robot2Auto extends Robot2Telemetry
                 }
                 break;
             case 11:
-                setServoVal("peoplePutter", getServoPos("peoplePutter")-0.01);
-                if (getServoPos("peoplePutter") < 0.1)
-                    state = 14;
-                break;
-            case 13: // Check if Drive is busy
-                if (isDriveDone())
-                {
-                    resetDrive();
-                    state++;
-                }
-                break;
-            case 14:
-                setMotorTarget("frontLeftDrive", getMotorPosition("frontLeftDrive")/1440d*360-350);
-                setMotorTarget("frontRightDrive", getMotorPosition("frontRightDrive")/1440d*360-350);
-                setMotorTarget("backLeftDrive", getMotorPosition("backLeftDrive")/1440d*360-350);
-                setMotorTarget("backRightDrive", getMotorPosition("backRightDrive")/1440d*360-350);
+                setServoVal("peoplePutter", 0);
                 state++;
                 break;
-            case 15: // Check if Drive is busy
+            case 12:
+                if (getServoCurrentPos("peoplePutter") < 0.1)
+                    waitVal++;
+                if (waitVal > 300)
+                    state++;
+                break;
+            case 13:
+                setMotorTarget("frontLeftDrive", -270);
+                setMotorTarget("frontRightDrive", -270);
+                setMotorTarget("backLeftDrive", -270);
+                setMotorTarget("backRightDrive", -270);
+                state++;
+                break;
+            case 14: // Check if Drive is busy
                 if (isDriveDone())
                 {
                     resetDrive();
                     state++;
                 }
                 break;
-            case 16:
+            case 15:
+                setMotorTarget("frontLeftDrive", 270);
+                setMotorTarget("frontRightDrive", -270);
+                setMotorTarget("backLeftDrive", 270);
+                setMotorTarget("backRightDrive", -270);
+                state++;
+                break;
+            case 16: // Check if Drive is busy
+                if (isDriveDone())
+                {
+                    resetDrive();
+                    state = 99;
+                }
+                break;
+            case 17:
                 setMotorTarget("frontLeftDrive", 270);
                 setMotorTarget("frontRightDrive", 270);
                 setMotorTarget("backLeftDrive", 270);
                 setMotorTarget("backRightDrive", 270);
                 state++;
                 break;
-            case 17: // Check if Drive is busy
+            case 18: // Check if Drive is busy
                 if (isDriveDone())
                 {
                     resetDrive();
-                    state = 99;
+                    state++;
+                }
+                break;
+            case 19:
+                setMotorTarget("frontLeftDrive", -270);
+                setMotorTarget("frontRightDrive", 270);
+                setMotorTarget("backLeftDrive", -270);
+                setMotorTarget("backRightDrive", 270);
+                state++;
+                break;
+            case 20: // Check if Drive is busy
+                if (isDriveDone())
+                {
+                    resetDrive();
+                    state++;
                 }
                 break;
             /*

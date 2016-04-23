@@ -20,9 +20,15 @@ public class SensorTest extends OpMode
     {
         interfaceModule = hardwareMap.deviceInterfaceModule.get("interfaceModule");
 
-        //interfaceModule.setDigitalChannelMode(5, DigitalChannelController.Mode.OUTPUT);
+        interfaceModule.setDigitalChannelMode(5, DigitalChannelController.Mode.OUTPUT);
 
         sensor = hardwareMap.colorSensor.get("colorSensor");
+    }
+
+    @Override
+    public void start()
+    {
+        interfaceModule.setDigitalChannelState(5, false);
     }
 
     @Override
