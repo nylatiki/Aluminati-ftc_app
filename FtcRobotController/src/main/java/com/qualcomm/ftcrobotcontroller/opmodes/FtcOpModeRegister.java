@@ -72,6 +72,8 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("Autonomous - BLUE", Robot2AutoBlue.class);
     //manager.register("Motor Test", MotorEncoderTest.class);
     manager.register("Servo Utility", ServoUtility.class);
+    manager.register("Legacy Sensor Test", LegacySensorTest.class);
+
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
