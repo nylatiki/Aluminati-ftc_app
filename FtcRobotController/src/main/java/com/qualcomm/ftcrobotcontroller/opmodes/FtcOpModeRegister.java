@@ -33,7 +33,6 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
-import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Register Op Modes
@@ -73,7 +72,8 @@ public class FtcOpModeRegister implements OpModeRegister {
     //manager.register("Motor Test", MotorEncoderTest.class);
     manager.register("Servo Utility", ServoUtility.class);
     manager.register("Legacy Sensor Test", LegacySensorTest.class);
-
+    manager.register("STC Best Team tele", STCTeleBestTeam.class);
+    manager.register("STC Sketch Tele", STCTeleSketch.class);
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
