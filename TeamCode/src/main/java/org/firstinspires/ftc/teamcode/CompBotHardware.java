@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by benlimpa on 10/23/16.
@@ -20,6 +23,8 @@ public class CompBotHardware
     private DcMotor wheel3;
     private DcMotor wheel4;
 
+    public DcMotor[] wheels;
+
     public DcMotorController forkController;
     public DcMotor frwheel;
     public DcMotor flwheel;
@@ -32,10 +37,13 @@ public class CompBotHardware
     public DcMotor rFork;
     public DcMotor lFork;
 
+    public Servo buttonPusher;
+
     public DeviceInterfaceModule dim;
 
-    public DigitalChannel frontIR;
-    public DigitalChannel backIR;
+    public DigitalChannel centerIR;
+
+    public ColorSensor colorSensor;
 
     private BotDirection direction;
 
@@ -53,15 +61,23 @@ public class CompBotHardware
         wheel3 = hardwareMap.dcMotor.get("w3");
         wheel4 = hardwareMap.dcMotor.get("w4");
 
+        wheels = new DcMotor[] {wheel1, wheel2, wheel3, wheel4};
+
         intake = hardwareMap.dcMotor.get("intake");
         shooter = hardwareMap.dcMotor.get("shooter");
 
         rFork = hardwareMap.dcMotor.get("rFork");
         lFork = hardwareMap.dcMotor.get("lFork");
 
+        buttonPusher = hardwareMap.servo.get("buttonPusher");
+
         dim = hardwareMap.deviceInterfaceModule.get("dim");
 
-        //frontIR = dim.get
+        switchDirection(BotDirection.INTAKE_FRONT);
+
+        colorSensor = hardwareMap.colorSensor.get("color");
+        centerIR = hardwareMap.digitalChannel.get("centerIR");
+        dim.setDigitalChannelMode(0, DigitalChannelController.Mode.INPUT);
     }
 
     public void switchDirection(BotDirection direction)
