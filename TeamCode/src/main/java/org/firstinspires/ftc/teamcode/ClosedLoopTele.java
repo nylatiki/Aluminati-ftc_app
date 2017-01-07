@@ -49,12 +49,15 @@ public class ClosedLoopTele extends OpMode
 
     public void init()
     {
+        telemetry.addData("Status", "Begin Initialization");
+        telemetry.update();
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
         parameters.loggingEnabled      = true;
         parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new CustomAccelerationIntegrator();
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
@@ -75,7 +78,11 @@ public class ClosedLoopTele extends OpMode
     {
         runtime.reset();
         imu.startAccelerationIntegration(new Position(DistanceUnit.CM, 0, 0, 0, 0), new Velocity(), 5);
-        targetHeading = 90;
+        targetHeading = 0;
+
+        x = 0;
+        y = 0;
+        r = 0;
     }
 
     public void loop()
@@ -83,18 +90,17 @@ public class ClosedLoopTele extends OpMode
         telemetry.addData("Status", "Running: " + runtime.toString());
         angles = imu.getAngularOrientation();
         acceleration = imu.getLinearAcceleration();
+        telemetry.addData("Acceleration", acceleration);
 
-
-        //translateMove(angles.firstAngle);
-        x = deadband(gamepad1.left_stick_x);
-        y = deadband(gamepad1.left_stick_y);
+        translateMove(angles.firstAngle);
+        //x = deadband(gamepad1.left_stick_x);
+        //y = deadband(gamepad1.left_stick_y);
         r = deadband(gamepad1.right_stick_x);
 
         if (x == 0 && y == 0 && r == 0)
         {
             if (wasManualMoving)
             {
-                targetHeading = floorMod(angles.firstAngle, 360);
                 targetHeading = floorMod(angles.firstAngle, 360);
             }
 
@@ -108,10 +114,14 @@ public class ClosedLoopTele extends OpMode
         y = scaleInput(y);
         //r = scaleInput(r);
 
+        telemetry.addData("x", x);
+        telemetry.addData("y", y);
+        telemetry.addData("z", r);
+
         move();
         buttonControl();
 
-        telemetry.addData("Bob's_Angle: ", angles.firstAngle);
+        telemetry.addData("Target: ", targetHeading);
     }
 
     public void stop()
@@ -123,15 +133,34 @@ public class ClosedLoopTele extends OpMode
     private void translateMove(double currentHeading)
     {
         double x = deadband(gamepad1.left_stick_x);
-        double y = deadband(gamepad1.left_stick_y);
+        double y = -deadband(gamepad1.left_stick_y);
         double angle = Math.atan(y / x) * 180 / Math.PI;
+
+        if (y < 0)
+        {
+            if (x < 0)
+                angle += 180; // Third Quadrant
+            else if (x > 0)
+                angle += 360; // Fourth Quadrant
+            else
+                angle = -90; // Quadrangle
+        }
+        else
+        {
+            if (x < 0)
+                angle += 180; // Second Quadrant
+            else if (x == 0)
+                angle = 90; // Quadrangle
+        }
+
         double magnitude = Math.sqrt(y * y + x * x);
-
         currentHeading = floorMod(currentHeading, 360);
-
-        angle += currentHeading;
+        telemetry.addData("current", currentHeading);
+        angle -= currentHeading;
 
         angle = floorMod(angle, 360);
+
+        telemetry.addData("angle", angle);
 
         this.x = Math.cos(angle * Math.PI / 180) * magnitude;
         this.y = Math.sin(angle * Math.PI / 180) * magnitude;
@@ -158,6 +187,11 @@ public class ClosedLoopTele extends OpMode
         // Ensure that the difference is the short way (315-45)
         if (diff > 180)
             diff = diff - 360;
+        else if (diff < -180)
+        {
+            diff += 360;
+            diff = -diff;
+        }
 
         telemetry.addData("Current Heading", currentHeading);
         telemetry.addData("Diff", diff);
