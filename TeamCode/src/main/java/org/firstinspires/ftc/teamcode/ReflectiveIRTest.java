@@ -51,22 +51,29 @@ public class ReflectiveIRTest extends LinearOpMode {
   DigitalChannel optoreflector;
   DeviceInterfaceModule cdim;
 
+
   // we assume that the LED pin of the RGB sensor is connected to
   // digital port 5 (zero indexed).
   static final int LED_CHANNEL = 5;
+
+  ColorSensor colorSensor;
 
   @Override
   public void runOpMode() throws InterruptedException {
 
     // get a reference to our DeviceInterfaceModule object.
-    cdim = hardwareMap.deviceInterfaceModule.get("cdim");
+    cdim = hardwareMap.deviceInterfaceModule.get("dim");
 
-    cdim.setDigitalChannelMode(LED_CHANNEL, DigitalChannelController.Mode.OUTPUT);
-    cdim.setDigitalChannelMode(6, DigitalChannelController.Mode.INPUT);
+    //cdim.setDigitalChannelMode(LED_CHANNEL, DigitalChannelController.Mode.OUTPUT);
+    //cdim.setDigitalChannelMode(6, DigitalChannelController.Mode.INPUT);
 
+    optoreflector = hardwareMap.digitalChannel.get("centerIR");
+    //cdim.setDigitalChannelMode(1, DigitalChannelController.Mode.INPUT);
+    cdim.setDigitalChannelMode(0, DigitalChannelController.Mode.INPUT);
+    //hardwareMap.colorSensor.get("colorSensor");
     ///optoreflector = hardwareMap.digitalChannel.get("optoreflector");
     // turn the LED on in the beginning, just so user will know that the sensor is active.
-    cdim.setDigitalChannelState(LED_CHANNEL, true);
+    //cdim.setDigitalChannelState(LED_CHANNEL, true);
 
     // wait for the start button to be pressed.
     waitForStart();
@@ -74,7 +81,8 @@ public class ReflectiveIRTest extends LinearOpMode {
     // loop and read the RGB data.
     // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
     while (opModeIsActive())  {
-      telemetry.addData("Optoreflector", cdim.getDigitalChannelState(6));
+      telemetry.addData("Optoreflector", optoreflector.getState());
+      telemetry.addData("cdim refelct", cdim.getDigitalChannelState(0));
       telemetry.update();
       idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
     }
