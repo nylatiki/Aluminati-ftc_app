@@ -19,6 +19,8 @@ public class MatchSpecificVars
     private boolean scoreCapBall = false;
     private double startOffset = 0;
     private int startWait = 0;
+    private double blueTurnAngle = 0;
+    private double redTurnAngle = 0;
 
     public MatchSpecificVars(String fileName)
     {
@@ -45,6 +47,11 @@ public class MatchSpecificVars
                         startOffset = Double.parseDouble(keyPair[1]);
                     else if (keyPair[0].equals("startWait"))
                         startWait = Integer.parseInt(keyPair[1]);
+                    else if (keyPair[0].equals("blueTurnAngle"))
+                        blueTurnAngle = Double.parseDouble(keyPair[1]);
+                    else if (keyPair[0].equals("redTurnAngle"))
+                        redTurnAngle = Double.parseDouble(keyPair[1]);
+
                 }
             }
             reader.close();
@@ -58,6 +65,8 @@ public class MatchSpecificVars
     public boolean scoreCapBall() {return scoreCapBall;}
     public double getStartOffset() {return startOffset;}
     public int getStartWait() {return startWait;}
+    public double getBlueTurnAngle() {return blueTurnAngle;}
+    public double getRedTurnAngle() {return redTurnAngle;}
 
     /* Checks if external storage is available to at least read */
     public boolean isExternalStorageReadable() {
