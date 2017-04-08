@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -15,33 +16,29 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
  * Created by benlimpa on 11/25/16.
  */
 
-@Autonomous(name="Auto", group="CompBot")
+@Autonomous(name="AutoBase", group="CompBot")
 @Disabled
 public class CompBotAuto extends LinearOpMode {
 
+    // Constants
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // This is < 1.0 if geared UP
     static final double     WHEEL_DIAMETER_INCHES   = 5 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * Math.PI);
     static final double     DRIVE_SPEED             = 0.6;
-    static final double     TURN_SPEED              = 0.5;
+    static final double     TURN_SPEED              = 0.3;
 
     public enum FieldColor {BLUE, RED}
 
-    BNO055IMU imu;
-
     private CompBotHardware hardware;
     private MatchSpecificVars matchVals;
-
-    private double integral;
+    private BNO055IMU imu;
 
     private FieldColor color;
     private int colorConst; // Blue = 1, Red = -1
 
     private ElapsedTime runtime = new ElapsedTime();
-
-
 
     protected void initVariation(FieldColor color)
     {
@@ -61,8 +58,8 @@ public class CompBotAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        telemetry.addData("Status", "Begin Initialization");
-        telemetry.update();
+        teleLog("Status", "Begin Initialization");
+
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -70,61 +67,77 @@ public class CompBotAuto extends LinearOpMode {
         parameters.loggingEnabled      = true;
         parameters.loggingTag          = "IMU";
 
+        teleLog("Status", "Initializing IMU");
+
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        integral = 0;
+
+        teleLog("Status", "IMU Initialized");
+        teleLog("Status", "Initializing Match Specific Variables");
 
         matchVals = new MatchSpecificVars("compBotAutoVars.txt");
+
+        teleLog("Status", "Match Specific Variables Initialized");
+        teleLog("Status", "Initializing Hardware");
 
         hardware = new CompBotHardware();
         hardware.init(hardwareMap);
 
-        telemetry.addData("Status", "Resetting Encoders");
-        telemetry.update();
+        teleLog("Status", "Hardware Initialized");
+        teleLog("Status", "Resetting Encoders");
 
         telemetry.update();
-        hardware.flwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        hardware.frwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        hardware.blwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        hardware.brwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        idle();
 
-        hardware.flwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hardware.frwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hardware.blwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        hardware.brwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        changeWheelMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         hardware.flwheel.setPower(0.4);
         hardware.frwheel.setPower(0.4);
         hardware.blwheel.setPower(0.4);
         hardware.brwheel.setPower(0.4);
 
-        telemetry.update();
-
         /*
          *  Start
          */
+        teleLog("Status", "Waiting for Start");
         waitForStart();
 
-        imu.startAccelerationIntegration(new Position(DistanceUnit.CM, 0, 0, 0, 0), new Velocity(), 5);
+        teleLog("Status", "Begin IMU integration");
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 5);
 
         hardware.buttonPusher.setPosition(0);
 
         // Wait for partner
-        telemetry.addData("Waiting for Partner (sec)", matchVals.getStartWait() / 1000d);
-        telemetry.update();
+        teleLog("Waiting for Partner (sec)", matchVals.getStartWait() / 1000d);
         sleep(matchVals.getStartWait());
 
         // Move to start
+        teleLog("Status", "Moving to Start Position");
         setNewTarget(matchVals.getStartOffset(), -matchVals.getStartOffset(),
                 -matchVals.getStartOffset(), matchVals.getStartOffset(), true);
         waitUntilDone();
+        /*
+        Testing
+         */
+        /*
+        while (opModeIsActive())
+        {
+            telemetry.addData("Orienation: ", imu.getAngularOrientation().firstAngle);
+            telemetry.update();
+        }
+        */
+        //autoTurn(90, 5);
+
+        /*
+        End Testing
+         */
 
         // Forward to shoot
+        teleLog("Status", "Moving to Shoot");
         setNewTarget(24, 24, 24, 24, false);
         waitUntilDone();
 
         // Shoot
+        teleLog("Status", "Shooting");
         hardware.shooter.setPower(-1);
         sleep(2000);
         hardware.shooter.setPower(0);
@@ -136,18 +149,18 @@ public class CompBotAuto extends LinearOpMode {
         hardware.shooter.setPower(0);
 
         // Turn to face beacon
+        teleLog("Status", "Turning to face beacon");
         setNewTarget(23, -23, 23, -23, true);
-        telemetry.addData("Progress", "Turn to beacon");
-        telemetry.update();
         waitUntilDone();
 
         // Move closer to beacon
+        teleLog("Status", "Moving to beacon");
         setNewTarget(36, 36, 36, 36, false);
-        telemetry.addData("Progress", "");
-        telemetry.update();
         waitUntilDone();
-
+/*
         // Move left to align with beacon
+        teleLog("Status", "Aligning with beacon");
+        teleLog("Status", "Resetting Encoders");
         hardware.flwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hardware.frwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hardware.blwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -159,7 +172,8 @@ public class CompBotAuto extends LinearOpMode {
         hardware.blwheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         hardware.brwheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        while (hardware.centerIR.getState())
+        teleLog("Status", "Aligning to beacon");
+        while (hardware.centerIR.getState() && opModeIsActive()) // False when it reaches the white line
         {
             hardware.flwheel.setPower(-0.3);
             hardware.frwheel.setPower(0.3);
@@ -167,12 +181,14 @@ public class CompBotAuto extends LinearOpMode {
             hardware.brwheel.setPower(-0.3);
             idle();
         }
+        teleLog("Status", "Beacon aligned");
 
         hardware.flwheel.setPower(0);
         hardware.frwheel.setPower(0);
         hardware.blwheel.setPower(0);
         hardware.brwheel.setPower(0);
 
+        teleLog("Status", "Resetting Encoders");
         hardware.flwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hardware.frwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hardware.blwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -200,54 +216,77 @@ public class CompBotAuto extends LinearOpMode {
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
+
+        */
     }
 
-    /*
+    private void changeWheelMode(DcMotor.RunMode mode)
+    {
+        teleLog("Status", "Resetting Encoders");
 
-    private void autoTurn(double turnAmount)
+        telemetry.update();
+        hardware.flwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hardware.frwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hardware.blwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hardware.brwheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        idle();
+
+        teleLog("Status", "Encoders Reset");
+
+        hardware.flwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hardware.frwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hardware.blwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hardware.brwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        teleLog("Status", "New Mode: " + mode.toString());
+    }
+
+    private void teleLog(String caption, String value)
+    {
+        telemetry.addData(caption, value);
+        telemetry.update();
+        DbgLog.msg("TeleLog: " + caption + ": " + value);
+    }
+
+    private void teleLog(String caption, double value)
+    {
+        teleLog(caption, Double.toString(value));
+    }
+
+    private void autoTurn(double turnAmount, double tolerance)
     {
         double currentHeading = floorMod(imu.getAngularOrientation().firstAngle, 360);
-        double targetHeading = currentHeading + turnAmount;
+        double targetHeading = floorMod(currentHeading + turnAmount, 360);
 
-        while (true)
+        if (turnAmount > 0)
         {
-            double diff = targetHeading - currentHeading;
-
-            // Ensure that the difference is the short way (315-45)
-            if (diff > 180)
-                diff = diff - 360;
-            else if (diff < -180)
-            {
-                diff += 360;
-                diff = -diff;
-            }
-
-            telemetry.addData("Current Heading", currentHeading);
-            telemetry.addData("Diff", diff);
-
-            double prop = diff * P_CONST;
-            integral += diff * I_CONST; // When it reaches the desired value, it may still have a non-zero value
-            double deriv = (diff - old_diff) * D_CONST;
-
-            r = -(prop + integral + deriv) / 180;
-
-            // deadzone affect the motor speed directly so that the integral would not leave
-            if (diff < TURN_DEADZONE && diff > -TURN_DEADZONE)
-            {
-                r = 0;
-                integral = 0;
-            }
-
-            old_diff = diff;
-
-            telemetry.addData("p", prop);
-            telemetry.addData("i", integral);
-            telemetry.addData("d", deriv);
-            telemetry.addData("r", r);
-            telemetry.addData("Position", imu.getPosition());
+            hardware.flwheel.setPower(-TURN_SPEED);
+            hardware.frwheel.setPower(TURN_SPEED);
+            hardware.blwheel.setPower(-TURN_SPEED);
+            hardware.brwheel.setPower(TURN_SPEED);
         }
+        else
+        {
+            hardware.flwheel.setPower(TURN_SPEED);
+            hardware.frwheel.setPower(-TURN_SPEED);
+            hardware.blwheel.setPower(TURN_SPEED);
+            hardware.brwheel.setPower(-TURN_SPEED);
+        }
+
+        double diff;
+        do
+        {
+            diff = targetHeading - floorMod(imu.getAngularOrientation().firstAngle, 360);
+            teleLog("Diff:", diff);
+            idle();
+        }
+        while ((diff > tolerance || diff < -tolerance) && opModeIsActive());
+
+        hardware.flwheel.setPower(0);
+        hardware.frwheel.setPower(0);
+        hardware.blwheel.setPower(0);
+        hardware.brwheel.setPower(0);
     }
-    */
 
     private double floorMod(double val, double mod)
     {
@@ -367,6 +406,7 @@ public class CompBotAuto extends LinearOpMode {
     {
         return (int) (inches * COUNTS_PER_INCH);
     }
+
 
     /**
      *
