@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.hitechnic.HiTechnicNxtUltrasonicSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 /**
  * Created by benlimpa on 10/23/16.
@@ -38,12 +40,18 @@ public class CompBotHardware
     public DcMotor lFork;
 
     public Servo buttonPusher;
+    public Servo lForkHolder;
+    public Servo rForkHolder;
+    public Servo brushy;
+    public Servo ballDoor;
 
     public DeviceInterfaceModule dim;
 
     public DigitalChannel centerIR;
 
     public ColorSensor colorSensor;
+
+    public UltrasonicSensor ultrasonic;
 
     private BotDirection direction;
 
@@ -70,6 +78,10 @@ public class CompBotHardware
         lFork = hardwareMap.dcMotor.get("lFork");
 
         buttonPusher = hardwareMap.servo.get("buttonPusher");
+        lForkHolder = hardwareMap.servo.get("lForkHolder");
+        rForkHolder = hardwareMap.servo.get("rForkHolder");
+        brushy = hardwareMap.servo.get("brushy");
+        ballDoor = hardwareMap.servo.get("ballDoor");
 
         dim = hardwareMap.deviceInterfaceModule.get("dim");
 
@@ -78,6 +90,7 @@ public class CompBotHardware
         colorSensor = hardwareMap.colorSensor.get("color");
         centerIR = hardwareMap.digitalChannel.get("centerIR");
         dim.setDigitalChannelMode(0, DigitalChannelController.Mode.INPUT);
+        ultrasonic = hardwareMap.ultrasonicSensor.get("ultrasonic");
     }
 
     public void switchDirection(BotDirection direction)

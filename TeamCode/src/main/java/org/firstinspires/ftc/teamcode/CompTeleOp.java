@@ -15,6 +15,7 @@ public class CompTeleOp extends OpMode
 
     private CompBotHardware hardware;
     private ElapsedTime runtime;
+    private double gateSetTime;
 
     public void init()
     {
@@ -23,23 +24,31 @@ public class CompTeleOp extends OpMode
         hardware = new CompBotHardware();
         hardware.init(hardwareMap);
 
-        hardware.lFork.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        hardware.rFork.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        hardware.intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hardware.lFork.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hardware.rFork.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //hardware.intake.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        //hardware.lFork.setPower(0.75);
-        //hardware.rFork.setPower(0.75);
+        hardware.flwheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hardware.frwheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hardware.blwheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hardware.brwheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         hardware.switchDirection(CompBotHardware.BotDirection.INTAKE_FRONT);
         hardware.shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        hardware.buttonPusher.getController().pwmEnable();
+
         hardware.buttonPusher.setPosition(0);
+        hardware.lForkHolder.setPosition(1);
+        hardware.rForkHolder.setPosition(1);
 
         telemetry.addData("Status", "Initialized");
     }
     public void start()
     {
         runtime.reset();
+        hardware.intake.setTargetPosition(1440);
+        hardware.brushy.setPosition(1);
     }
 
     public void loop()
@@ -55,6 +64,9 @@ public class CompTeleOp extends OpMode
 
         telemetry.addData("motor power: ", hardware.flwheel.getPower());
 
+        telemetry.addData("Ultrasonic", hardware.ultrasonic.getUltrasonicLevel());
+        telemetry.update();
+
         if (gamepad1.right_bumper)
             hardware.shooter.setPower(1);
         else if (gamepad1.left_bumper)
@@ -68,30 +80,62 @@ public class CompTeleOp extends OpMode
             hardware.intake.setPower(-gamepad1.left_trigger);
         else
             hardware.intake.setPower(0);
-       /*int currentPos = hardware.intake.getCurrentPosition();
+
+        if (gamepad2.dpad_up)
+        {
+            hardware.lFork.setPower(-1);
+            hardware.rFork.setPower(1);
+        }
+        else if (gamepad2.dpad_down)
+        {
+            hardware.lFork.setPower(1);
+            hardware.rFork.setPower(-1);
+        }
+        else
+        {
+            hardware.lFork.setPower(deadzone(gamepad2.left_stick_y));
+            hardware.rFork.setPower(deadzone(-gamepad2.right_stick_y));
+        }
+
+        if (gamepad2.left_bumper)
+        {
+            hardware.lForkHolder.setPosition(1);
+            hardware.rForkHolder.setPosition(1);
+        }
+        else if (gamepad2.right_bumper)
+        {
+            hardware.lForkHolder.setPosition(0);
+            hardware.rForkHolder.setPosition(0);
+        }
+
+        if (gamepad1.a)
+        {
+            hardware.ballDoor.setPosition(0.5);
+            gateSetTime = runtime.milliseconds();
+        }
+        else if (runtime.milliseconds() - gateSetTime > 500)
+        {
+            hardware.ballDoor.setPosition(0.6);
+        }
+
+/*
         if (gamepad1.x)
             hardware.intake.setPower(1);
         else if (gamepad1.y)
             hardware.intake.setPower(-1);
-        else if (Math.abs(currentPos % 720) > 10)
-        {
-            int modPos = floorMod(currentPos, 720);
-            if (modPos > 360)
-                hardware.intake.setPower(-modPos / 450d);
-            else
-                hardware.intake.setPower((720 - modPos) / 450d);
-        }
         else
-            hardware.intake.setPower(0);*/
-
-        /*
-        telemetry.addData("Intake", hardware.intake.getCurrentPosition());
-        telemetry.addData("lFork", hardware.lFork.getCurrentPosition());
-        telemetry.addData("rFork", hardware.rFork.getCurrentPosition());
-        telemetry.addData("AyLmao", gamepad1.right_trigger);
-        telemetry.addData("AyyyLamo420", hardware.intake.getPower());
+        {
+            double modPos = floorMod(hardware.intake.getCurrentPosition(), 720); // 180 * 4 - 720 (1440 per rot)
+            if (modPos > 20 && modPos < 720 - 20) // if true the position is must be adjusted
+            {
+                modPos -= 360; // center 0 to 90 (90 * 4 = 360)
+                modPos /= (2500); // Normalize the degrees to convert to power
+                hardware.intake.setPower(modPos);
+            }
+            else
+                hardware.intake.setPower(0);
+        }
         */
-
 
         if (gamepad1.dpad_down)
         {
@@ -99,38 +143,9 @@ public class CompTeleOp extends OpMode
         }
         else if (gamepad1.dpad_up)
         {
+
             hardware.buttonPusher.setPosition(0);
         }
-        /*
-        if (gamepad1.dpad_down)
-        {
-            hardware.lFork.setPower(1);
-            hardware.rFork.setPower(-1);
-        }
-        else if (gamepad1.dpad_up)
-        {
-            hardware.lFork.setPower(-1);
-            hardware.rFork.setPower(1);
-        }
-        else
-        {
-            hardware.lFork.setPower(0);
-            hardware.rFork.setPower(0);
-        }
-        */
-
-/*
-        if (gamepad1.dpad_left)
-        {
-            hardware.lFork.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            hardware.rFork.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-        else
-        {
-            hardware.lFork.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            hardware.rFork.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-*/
     }
 
     public void stop()
