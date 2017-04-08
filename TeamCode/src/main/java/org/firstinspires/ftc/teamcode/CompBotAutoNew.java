@@ -282,8 +282,6 @@ public class CompBotAutoNew extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        hardware.brushy.setPosition(1);
-
         // Move Forward
         teleLog("Status", "Moving Forward");
         setNewTarget(20, 20, 20, 20);
@@ -383,7 +381,7 @@ public class CompBotAutoNew extends LinearOpMode {
         ultraCheck = 0;
         while (ultraCheck < 40 && opModeIsActive())
         {
-            if (hardware.ultrasonic.getUltrasonicLevel() < 25)
+            if (hardware.lUltra.getUltrasonicLevel() < 25)
                 ultraCheck++;
             sleep(5);
             idle();
@@ -449,7 +447,7 @@ public class CompBotAutoNew extends LinearOpMode {
         ultraCheck = 0;
         while (ultraCheck < 40 && opModeIsActive())
         {
-            if (hardware.ultrasonic.getUltrasonicLevel() < 21)
+            if (hardware.lUltra.getUltrasonicLevel() < 21)
                 ultraCheck++;
             sleep(5);
             idle();
