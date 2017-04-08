@@ -110,10 +110,14 @@ public class AutoColorTest extends LinearOpMode {
          */
         waitForStart();
 
+        imu.startAccelerationIntegration(new Position(DistanceUnit.CM, 0, 0, 0, 0), new Velocity(), 5);
+
         telemetry.addData("Status", "Running");
+        telemetry.update();
         while (true)
         {
             telemetry.addData("Color", checkColor());
+            telemetry.update();
             idle();
         }
 
@@ -176,6 +180,34 @@ public class AutoColorTest extends LinearOpMode {
             val += mod;
 
         return val;
+    }
+
+    private void autoTurn(double turnAmount, double tolerance)
+    {
+        double currentHeading = floorMod(imu.getAngularOrientation().firstAngle, 360);
+        double targetHeading = currentHeading + turnAmount;
+
+        if (turnAmount > 0)
+        {
+            hardware.flwheel.setPower(TURN_SPEED);
+            hardware.frwheel.setPower(TURN_SPEED);
+            hardware.blwheel.setPower(TURN_SPEED);
+            hardware.brwheel.setPower(TURN_SPEED);
+        }
+        else
+        {
+            hardware.flwheel.setPower(-TURN_SPEED);
+            hardware.frwheel.setPower(-TURN_SPEED);
+            hardware.blwheel.setPower(-TURN_SPEED);
+            hardware.brwheel.setPower(-TURN_SPEED);
+        }
+
+        double diff;
+        do
+        {
+            diff = targetHeading - floorMod(imu.getAngularOrientation().firstAngle, 360);
+        }
+        while (!(diff < tolerance && diff > -tolerance) && opModeIsActive());
     }
 
     private void chooseColor() throws InterruptedException
