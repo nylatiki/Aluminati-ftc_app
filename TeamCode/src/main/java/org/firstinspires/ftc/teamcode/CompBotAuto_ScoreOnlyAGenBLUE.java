@@ -3,14 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
+
 /**
  * Created by benlimpa on 11/25/16.
  */
 
-@Autonomous(name="Score Center & Hit CapBall", group="CompBot")
+@Autonomous(name="Score Center & Hit BLUE", group="CompBot")
 //@Disabled
-public class CompBotAuto_ScoreOnly extends LinearOpMode {
+public class CompBotAuto_ScoreOnlyAGenBLUE extends LinearOpMode {
     
     private CompBotHardware hardware;
 
@@ -46,6 +46,8 @@ public class CompBotAuto_ScoreOnly extends LinearOpMode {
         hardware.blwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         hardware.brwheel.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        hardware.buttonPusher.getController().pwmDisable();
+
         hardware.flwheel.setPower(DRIVE_SPEED);
         hardware.frwheel.setPower(DRIVE_SPEED);
         hardware.blwheel.setPower(DRIVE_SPEED);
@@ -55,6 +57,8 @@ public class CompBotAuto_ScoreOnly extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
+        sleep(15000);
 
         hardware.rFork.setPower(1);
 
@@ -73,24 +77,28 @@ public class CompBotAuto_ScoreOnly extends LinearOpMode {
         hardware.shooter.setPower(-1);
         sleep(2000);
         hardware.shooter.setPower(0);
-        hardware.intake.setPower(1);
-        sleep(1000);
-        hardware.intake.setPower(0);
-        hardware.shooter.setPower(-1);
-        sleep(2000);
-        hardware.shooter.setPower(0);
-        
-        // Hit the Cap Ball and Stop on the center platform
+// 0.0625
         hardware.flwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
-                + convertToCount(24));
+                + convertToCount(13));
         hardware.frwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
-                + convertToCount(24));
+                + convertToCount(-13));
         hardware.blwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
-                + convertToCount(24));
+                + convertToCount(13));
         hardware.brwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
-                + convertToCount(24));
-        telemetry.addData("Progress", 1);
+                + convertToCount(-13));
         waitUntilDone();
+
+        hardware.flwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
+                + convertToCount(100));
+        hardware.frwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
+                + convertToCount(100));
+        hardware.blwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
+                + convertToCount(100));
+        hardware.brwheel.setTargetPosition(hardware.flwheel.getCurrentPosition()
+                + convertToCount(100));
+        waitUntilDone();
+
+
 
         hardware.flwheel.setPower(0);
         hardware.frwheel.setPower(0);
