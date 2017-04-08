@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.hitechnic.HiTechnicNxtUltrasonicSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
@@ -18,7 +17,27 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 public class CompBotHardware
 {
+    // Constants
     public enum BotDirection {INTAKE_FRONT, SENSOR_FRONT}
+
+    static final double BUTTON_PUSHER_DOWN  = 0.42;
+    static final double BUTTON_PUSHER_UP    = 0.1;
+
+    static final double L_FORK_RELEASE  = 0.2;
+    static final double L_FORK_HOLD     = 0.8;
+
+    static final double R_FORK_RELEASE  = 0.6;
+    static final double R_FORK_HOLD     = 0.0;
+
+    static final double BALL_DOOR_CLOSE = 0.6;
+    static final double BALL_DOOR_OPEN  = 0.5;
+
+    static final double BALL_DOOR2_CLOSE = 0.2;
+    static final double BALL_DOOR2_OPEN  = 0.4;
+
+    static final double ITS_NOT_OVER = 0.15;
+    static final double ITS_OVER = 0.43;
+
     // Hardware
     private DcMotor wheel1;
     private DcMotor wheel2;
@@ -36,14 +55,12 @@ public class CompBotHardware
     public DcMotor intake;
     public DcMotor shooter;
 
-    public DcMotor rFork;
-    public DcMotor lFork;
-
     public Servo buttonPusher;
     public Servo lForkHolder;
     public Servo rForkHolder;
-    public Servo brushy;
     public Servo ballDoor;
+    public Servo ballDoor2;
+    public Servo itsOver;
 
     public DeviceInterfaceModule dim;
 
@@ -51,7 +68,8 @@ public class CompBotHardware
 
     public ColorSensor colorSensor;
 
-    public UltrasonicSensor ultrasonic;
+    public UltrasonicSensor lUltra;
+    public UltrasonicSensor rUltra;
 
     private BotDirection direction;
 
@@ -74,14 +92,12 @@ public class CompBotHardware
         intake = hardwareMap.dcMotor.get("intake");
         shooter = hardwareMap.dcMotor.get("shooter");
 
-        rFork = hardwareMap.dcMotor.get("rFork");
-        lFork = hardwareMap.dcMotor.get("lFork");
-
         buttonPusher = hardwareMap.servo.get("buttonPusher");
         lForkHolder = hardwareMap.servo.get("lForkHolder");
         rForkHolder = hardwareMap.servo.get("rForkHolder");
-        brushy = hardwareMap.servo.get("brushy");
         ballDoor = hardwareMap.servo.get("ballDoor");
+        ballDoor2 = hardwareMap.servo.get("ballDoor2");
+        itsOver = hardwareMap.servo.get("itsOver");
 
         dim = hardwareMap.deviceInterfaceModule.get("dim");
 
@@ -90,7 +106,8 @@ public class CompBotHardware
         colorSensor = hardwareMap.colorSensor.get("color");
         centerIR = hardwareMap.digitalChannel.get("centerIR");
         dim.setDigitalChannelMode(0, DigitalChannelController.Mode.INPUT);
-        ultrasonic = hardwareMap.ultrasonicSensor.get("ultrasonic");
+        lUltra = hardwareMap.ultrasonicSensor.get("lUltra");
+        rUltra = hardwareMap.ultrasonicSensor.get("rUltra");
     }
 
     public void switchDirection(BotDirection direction)
